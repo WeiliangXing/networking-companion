@@ -1,0 +1,16 @@
+node_modules/
+.wrangler/
+.dev.vars
+.env*
+
+.email-device-link
+.email-setup-status.json
+
+backups/
+
+.activate-email.html
+
+.dev.vars.*
+!.dev.vars.example
+.DS_Store
+.vscode/

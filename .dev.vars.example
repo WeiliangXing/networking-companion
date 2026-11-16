@@ -1,0 +1,4 @@
+OWNER_CODE="replace-with-your-login-code"
+SESSION_SECRET="replace-with-a-long-random-secret"
+OPENAI_API_KEY=""
+EMAIL_SENDING_ENABLED="false"

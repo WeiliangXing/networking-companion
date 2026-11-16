@@ -1,0 +1,11 @@
+CREATE TABLE workspace_items (
+ id TEXT PRIMARY KEY,
+ kind TEXT NOT NULL DEFAULT 'email',
+ title TEXT NOT NULL DEFAULT '',
+ content TEXT NOT NULL DEFAULT '',
+ recipient TEXT NOT NULL DEFAULT '',
+ subject TEXT NOT NULL DEFAULT '',
+ body TEXT NOT NULL DEFAULT '',
+ revision INTEGER NOT NULL DEFAULT 1,
+ updated_at TEXT NOT NULL
+);

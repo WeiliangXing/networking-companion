@@ -1,11 +1,11 @@
 # Networking Companion
 
-一个用于线下交流的浏览器语音 Agent。访客可以和 3D 机器人对话、听团队介绍、浏览业务演示，或留下联系方式。会后可以查看笔记和跟进邮件草稿。团队介绍在 src/profile.js、src/joanna-background.js 和 src/professional-introduction.js 中维护。
+Networking Companion is a browser-based voice assistant for in-person networking events. Guests can talk to a 3D avatar, hear a team introduction, explore a business demo, and leave their contact details. After the event, the host can review notes and draft follow-up emails.
 
-## 在 Mac 上运行
+## Run locally on a Mac
 
-1. 安装 Node.js 24 和 npm。用以下命令下载项目并安装锁定版本的依赖。
-   
+1. Install Node.js 24 and npm. Clone the repository, install dependencies, and create your local configuration file.
+
    ```sh
    git clone https://github.com/WeiliangXing/networking-companion.git
    cd networking-companion
@@ -14,31 +14,45 @@
    cp .dev.vars.example .dev.vars
    ```
 
-2. 编辑项目根目录的 `.dev.vars`。把 `OWNER_CODE` 换成自己登录网页用的口令，把 `SESSION_SECRET` 换成运行 `openssl rand -hex 32` 得到的随机字符串。保留每个值外侧的双引号。要体验语音和联网研究，将自己的 OpenAI API key 填入 `OPENAI_API_KEY`。留空也可以测试登录和联系人保存。模型名称在 `wrangler.jsonc` 中配置。邮件发送默认关闭。
+2. Open `.dev.vars` and set the following values. Keep the double quotes around each value.
 
-3. 初始化本地 D1 数据库，再启动应用。首次运行以及更新代码后执行迁移。
-   
+   | Setting | What to enter |
+   | --- | --- |
+   | `OWNER_CODE` | Choose a passcode to unlock the workspace. |
+   | `SESSION_SECRET` | Run `openssl rand -hex 32` and paste the generated value. |
+   | `OPENAI_API_KEY` | Enter your OpenAI API key to enable voice and web research. You can leave it empty to test sign-in and contact capture. |
+
+   Model names are configured in `wrangler.jsonc`. Email sending is disabled by default.
+
+3. Initialize the local database and start the server. Run the migration command again after pulling updates.
+
    ```sh
    npx wrangler d1 migrations apply networking-companion --local
    npm run dev
    ```
 
-4. 打开 **http://localhost:5203**，使用刚设置的口令解锁。点击 **Start**，允许浏览器使用麦克风，试着说“介绍一下你的团队”。点击 **Stop** 结束。业务展示页也可以直接打开 **http://localhost:5203/business/**。终端按 Ctrl+C 可停止服务器，下次进入项目目录运行 `npm run dev` 即可。本地数据库保存在 `.wrangler/state/`。
+4. Open [the local app](http://localhost:5203/) and enter your passcode. Click **Start**, allow microphone access, and try saying “Tell me about your team.” Click **Stop** to end the conversation. You can also open the [business demo](http://localhost:5203/business/) directly.
 
-## 验证
+Keep the terminal open while using the app. Press Ctrl+C to stop the server. Next time, run `npm run dev` from the project directory. Local data is stored in `.wrangler/state/`.
 
-在另一个终端进入同一目录，使用 Node.js 24 执行以下命令。
+## Verify the setup
+
+With the server running, open a second terminal in the same project directory. Use Node.js 24 and leave email sending disabled.
 
 ```sh
 npm test
 node test/local-flow.mjs
 ```
 
-第一条运行单元测试。第二条要求本地服务已启动、数据库已迁移、邮件发送关闭，用合成联系人验证登录、访客交接、保存和结束会话。默认端口为 5203，可通过 LOCAL_TEST_PORT 指定其他本地测试端口。两项验证均可在 API key 留空时运行。
+The first command runs the unit tests. The second uses a synthetic contact to verify sign-in, guest handoff, contact capture, and session closure against the local database. Both checks work without an OpenAI API key. If the server is listening on a different port, set `LOCAL_TEST_PORT` when running the second command. The default is 5203.
 
-## 部署自己的 Cloudflare Worker（可选）
+## Customize the introduction
 
-先运行 `npx wrangler login`，再执行 `npx wrangler d1 create networking-companion`。把返回的 database_id 填入 wrangler.jsonc，保留绑定名 DB，并将 Worker 的 name 改为自己的服务名。运行以下命令，按提示逐个输入线上密钥。
+Edit [the assistant profile](src/profile.js), [the professional background](src/joanna-background.js), and [the team introduction](src/professional-introduction.js) to change how the assistant introduces your team.
+
+## Deploy to Cloudflare (optional)
+
+Run `npx wrangler login`, then `npx wrangler d1 create networking-companion`. Copy the returned database ID into `database_id` in `wrangler.jsonc`. Keep the binding name `DB` and set the Worker's `name` to your chosen service name.
 
 ```sh
 npx wrangler d1 migrations apply networking-companion --remote
@@ -48,4 +62,4 @@ npx wrangler secret put SESSION_SECRET
 npx wrangler secret put OPENAI_API_KEY
 ```
 
-打开部署输出中的 HTTPS 地址，使用线上口令测试。线上数据库与本地数据库独立。开启实时语音需要账号有权使用所配置的模型。实际麦克风、扬声器及会场噪声下的效果需要在使用设备上验证。
+Enter each production secret when prompted. Open the HTTPS address printed by the deployment command and sign in with your production passcode. The hosted app uses its own database. To test voice, use an API account with access to the configured models and try a conversation on the device and in the environment you plan to use at the event.
